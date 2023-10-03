@@ -4,39 +4,53 @@ let mouse = {
   y: undefined,
   radius: 200,
 };
+const difficulty = {
+  easy : {
+    speedX:0, 
+    speedY:0 
+  },
+  normal : {
+    speedX:Math.floor(Math.random() - 0.5 * 5),
+    speedY:Math.floor(Math.random() - 0.5 * 5)
+  },
+  hard : {
+    speedX:Math.floor(Math.random() - 0.5 * 10),
+    speedY:Math.floor(Math.random() - 0.5 * 10)
+  }
+}
+
+
+
+
+
 const canvas = document.querySelector("canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const circleColors = ["white", "black", "blue", "green"];
+const circleColors = ["#6CB4EE", "#0000FF", "#3457D5", "#2a52be","#6F00FF"];
 
-
-//System de point 
-class Points { 
-  points = 0; 
-  constructor(){
-  }
+//System de point
+class Points {
+  points = 0;
+  constructor() {}
   getPoints() {
-      return this.points;
+    return this.points;
   }
   setPoints(increment) {
-      this.points+=increment
+    this.points += increment;
   }
-
 }
-const gui=()=> {
-  const pointsHolder = document.querySelector("#points")
-  pointsHolder.innerHTML=points.getPoints(); 
-}
+const gui = () => {
+  const pointsHolder = document.querySelector("#points");
+  pointsHolder.innerHTML = `Current Score : ${points.getPoints()}`;
+};
 
 const handleRezier = () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  
 };
 
-
-const points = new Points()
+const points = new Points();
 window.addEventListener("mousemove", (event) => {
   mouse.x = event.x;
   mouse.y = event.y;
@@ -56,18 +70,14 @@ window.addEventListener("click", (event) => {
       )
     ) {
       return circle;
-    }
-    else {
+    } else {
       points.setPoints(1);
-      gui()
+      gui();
     }
   });
 });
 
-
-
-
-class Circle   {
+class Circle {
   constructor(x, y, radius, speedX, speedY, color) {
     this.x = x;
     this.y = y;
@@ -117,39 +127,74 @@ class Circle   {
 }
 
 let circles = [];
+let time = 5;
+let difficultyChosen = document.querySelector('#difficulity'); 
+const TIME = 5 ; 
 
-for (let i = 0; i < 20; i++) {
-  const randomX = Math.floor(Math.random() * innerWidth);
-  const randomY = Math.floor(Math.random() * innerHeight);
-  const randomSpeedX = Math.floor(Math.random() - 0.5 * 5);
-  const randomSpeedY = Math.floor(Math.random() - 0.5 * 5);
-  const randomColor =
-    circleColors[Math.floor(Math.random() * circleColors.length)];
-  circles.push(
-    new Circle(randomX, randomY, 50, randomSpeedX, randomSpeedY, randomColor)
-  );
+
+
+let timeHolder = document.querySelector("#time");
+let index = 0;
+timeHolder.innerHTML = `Time Left : ${time}`;
+
+const setTime=()=> {
+  let TRACK_LENGTH= circles.length
+  let interval = setInterval(() => {
+    if (time < 1) {
+      clearInterval(interval);
+      circles = [];
+    } else {
+      if(TRACK_LENGTH===circles.length) index++;
+      console.log(circles[index])
+      time -= 1;
+      timeHolder.innerHTML = `Time Left : ${time}`;
+    }
+  }, 1000);
 }
+const createCircles = ()=> {
+  for (let i = 0; i < time+1 ; i++) {
+    const randomX = Math.floor(Math.random() * innerWidth);
+    const randomY = Math.floor(Math.random() * innerHeight);
+    const randomSpeedX = difficulty[difficultyChosen.value].speedX;
+    const randomSpeedY = difficulty[difficultyChosen.value].speedY;
+    const randomColor =
+      circleColors[Math.floor(Math.random() * circleColors.length)];
+    circles.push(
+      new Circle(randomX, randomY, 50, randomSpeedX, randomSpeedY, randomColor)
+    );
+  }
+}
+
+
 
 const animate = () => {
   const context = canvas.getContext("2d");
-  requestAnimationFrame(animate);
-  context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-  for (let i = 0; i < circles.length; i++) {
-    circles[i].update();
+  if (circles.length != 0 && points.getPoints() != circles.length && time>0) {
+    requestAnimationFrame(animate);
+    context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    circles[index].update();
+  } else {
+    context.clearRect(0, 0, window.innerWidth, window.innerHeight);
   }
 };
 
-const init=() => {
-  gui()
-  handleRezier()
-  animate(); 
-}
+const init = () => {
+  createCircles(); 
+  gui();
+  handleRezier();
+  setTime(); 
+  animate();
+};
+const start_menu = document.querySelector('.start_menu')
 
+start_menu.width=innerWidth;
+start_menu.height=innerHeight
 
-
-
-
-window.addEventListener("load", () => {
+const togglePlay  =document.querySelector('#togglePlay')
+togglePlay.addEventListener("click",()=> {
   init()
-});
+  start_menu.style.cssText='display:none'
+})
+// window.addEventListener("load", () => {
+//   init();
+// });

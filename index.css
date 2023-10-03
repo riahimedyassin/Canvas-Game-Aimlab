@@ -1,12 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+
+:root {
+    --mainBlue : #007FFF;
+    --secondBlue : #0000FF ;
+}
+
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     overflow: hidden;
+    font-family: 'Poppins', sans-serif;
 }
 
 canvas {
-    background-color: red;
+    background-image: url(./src/chain_effect.png);
 }
 .gui {
     position: absolute;
@@ -15,12 +25,65 @@ canvas {
     transform: translate(-50%,0);
     width: 600px;
     height: 100px;
-    background-color: black;
+    background-color: var(--secondBlue);
     color: white;
     z-index: 10;
-    border-radius: 20px;
+    border-radius: 0 0 32px 32px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: xx-large;
+}
+.start_menu {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(20deg,var(--mainBlue),var(--secondBlue));
+    z-index: 20;
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+}
+.start_menu button {
+    width: 400px;
+    height: 80px;
     font-size: xx-large;
+    font-weight: bold;
+    border-radius: 16px;
+    border: 2px solid white;
+    background-color: transparent;
+    color: white;
+    transition: 0.2s ease-in-out;
+    cursor: pointer;
+    margin: 32px;
+}
+.start_menu button:hover {
+    color: var(--secondBlue);
+    background-color: white;
+  
+}
+.start_menu #difficulity {
+    width: 400px;
+    height: 60px;
+    font-size: x-large;
+    font-weight: bold;
+    border-radius: 16px;
+    border: 2px solid white;
+    background-color: transparent;
+    color: white;
+}
+#difficulity option {
+    color: black;
+}
+h1 {
+    font-size:3rem ;
+}
+.start_menu img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0.5;
+    z-index: -1;
 }
