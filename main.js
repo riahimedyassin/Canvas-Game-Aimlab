@@ -2,6 +2,7 @@
 const start_menu = document.querySelector(".start_menu");
 const average_score = document.querySelector("#average--score");
 const sound_effect = document.querySelector("audio");
+const alert = document.querySelector(".alert");
 
 let mouse = {
   x: undefined,
@@ -62,6 +63,12 @@ window.addEventListener("mousemove", (event) => {
 window.addEventListener("resize", () => {
   handleRezier();
 });
+const alertHit = () => {
+  setInterval(() => {
+    alert.style.cssText = "display:block";
+  }, 500);
+  alert.style.cssText = "display:none";
+};
 
 window.addEventListener("click", (event) => {
   circles = circles.filter((circle) => {
@@ -75,6 +82,7 @@ window.addEventListener("click", (event) => {
     ) {
       return circle;
     } else {
+      alertHit()
       points.setPoints(1);
       gui();
     }
@@ -206,8 +214,16 @@ const createCircles = () => {
     const randomSpeedY = difficulty[difficultyChosen.value].speedY;
     const randomColor =
       circleColors[Math.floor(Math.random() * circleColors.length)];
+    const randomRadius = Math.floor(Math.random() * 100);
     circles.push(
-      new Circle(randomX, randomY, 50, randomSpeedX, randomSpeedY, randomColor)
+      new Circle(
+        randomX,
+        randomY,
+        randomRadius,
+        randomSpeedX,
+        randomSpeedY,
+        randomColor
+      )
     );
   }
 };

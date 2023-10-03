@@ -34,6 +34,17 @@ canvas {
     align-items: center;
     font-size: xx-large;
 }
+.alert {
+    display: none;
+    z-index: 10;
+    color: red;
+    font-size: large;
+    font-weight: bold;
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translate(-50%,0);
+}
 .start_menu {
     position: absolute;
     width: 100%;
@@ -73,6 +84,7 @@ canvas {
     border: 2px solid white;
     background-color: transparent;
     color: white;
+    cursor: pointer;
 }
 #difficulity option {
     color: black;
@@ -113,4 +125,8 @@ p {
 #average--score {
     margin-top: 32px;
     font-size: 1.5rem;
+}
+h2 a {
+    color: white;
+    
 }
