@@ -78,7 +78,11 @@ canvas {
     color: black;
 }
 h1 {
-    font-size:3rem ;
+    font-size:4rem ;
+}
+p {
+    font-size: x-large;
+    opacity: 0.6;
 }
 .start_menu .effect {
     width: 100%;
@@ -105,4 +109,8 @@ h1 {
 }
 .social--media img {
     margin-left: 16px;
+}
+#average--score {
+    margin-top: 32px;
+    font-size: 1.5rem;
 }

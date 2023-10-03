@@ -1,33 +1,35 @@
 "use strict";
+const start_menu = document.querySelector(".start_menu");
+const average_score = document.querySelector('#average--score')
+
+
+
+
 let mouse = {
   x: undefined,
   y: undefined,
   radius: 50,
 };
 const difficulty = {
-  easy : {
-    speedX:0, 
-    speedY:0 
+  easy: {
+    speedX: 0,
+    speedY: 0,
   },
-  normal : {
-    speedX:Math.floor(Math.random() - 0.5 * 5),
-    speedY:Math.floor(Math.random() - 0.5 * 5)
+  normal: {
+    speedX: Math.floor(Math.random() - 0.5 * 5),
+    speedY: Math.floor(Math.random() - 0.5 * 5),
   },
-  hard : {
-    speedX:Math.floor(Math.random() - 0.5 * 10),
-    speedY:Math.floor(Math.random() - 0.5 * 10)
-  }
-}
-
-
-
-
+  hard: {
+    speedX: Math.floor(Math.random() - 0.5 * 10),
+    speedY: Math.floor(Math.random() - 0.5 * 10),
+  },
+};
 
 const canvas = document.querySelector("canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const circleColors = ["#6CB4EE", "#0000FF", "#3457D5", "#2a52be","#6F00FF"];
+const circleColors = ["#6CB4EE", "#0000FF", "#3457D5", "#2a52be", "#6F00FF"];
 
 //System de point
 class Points {
@@ -38,6 +40,9 @@ class Points {
   }
   setPoints(increment) {
     this.points += increment;
+  }
+  initPoints() {
+    this.points=0
   }
 }
 const gui = () => {
@@ -76,6 +81,23 @@ window.addEventListener("click", (event) => {
     }
   });
 });
+class LocalStorageManager {
+  init() {
+    localStorage.setItem("track-points", []);
+  }
+  getLocalStorage() {
+    let local = localStorage.getItem("track-points");
+    if (local) return JSON.parse(local);
+    this.init();
+    return [];
+  }
+  setScore(score, diff,total) {
+    let saved = this.getLocalStorage();
+    const final = { score : score, diff, game_id: saved.length + 1 , total };
+    saved.push(final);
+    localStorage.setItem("track-points", JSON.stringify(saved));
+  }
+}
 
 class Circle {
   constructor(x, y, radius, speedX, speedY, color) {
@@ -94,8 +116,8 @@ class Circle {
       this.x >= mouse.x - mouse.radius &&
       this.x <= mouse.x + mouse.radius &&
       this.y >= mouse.y - mouse.radius &&
-      this.y <= mouse.y + mouse.radius
-      && this.radius<this.RADIUS+10
+      this.y <= mouse.y + mouse.radius &&
+      this.radius < this.RADIUS + 10
     ) {
       this.radius++;
     } else {
@@ -128,33 +150,52 @@ class Circle {
 }
 
 let circles = [];
-let time = 20;
-let difficultyChosen = document.querySelector('#difficulity'); 
-const TIME = 5 ; 
-
-
+let time = 5;
+let difficultyChosen = document.querySelector("#difficulity");
+const TIME = 5;
 
 let timeHolder = document.querySelector("#time");
 let index = 0;
 timeHolder.innerHTML = `Time Left : ${time}`;
 
-const setTime=()=> {
-  let TRACK_LENGTH= circles.length
-  console.log(TRACK_LENGTH)
+const points_tracker = new LocalStorageManager()
+const cal_avg=() => {
+    const local = points_tracker.getLocalStorage()
+    console.log(local.length)
+    let totalPoints = 0
+    if(local.length!=0) {
+      local.map((game)=> {
+        console.log(game)
+        totalPoints+=(game.score / game.total)
+      })
+      average_score.innerHTML=`Your avergae accuracy is ${Math.ceil((totalPoints / local.length)*100)}%`
+    }
+    else {
+      average_score.innerHTML="Play games to calculate your averge score"
+    }
+}
+
+const setTime = () => {
+  const TOTAL_CIRCLES = circles.length
+  let TRACK_LENGTH = circles.length;
+  console.log(TRACK_LENGTH);
   let interval = setInterval(() => {
-    console.log(circles)
+    console.log(circles);
     if (time < 1) {
       clearInterval(interval);
       circles = [];
+      points_tracker.setScore(points.getPoints(),difficultyChosen.value,TOTAL_CIRCLES);
+      start_menu.style.cssText = "display:flex";
+      cal_avg()
     } else {
-      if(TRACK_LENGTH===circles.length) index++;
+      if (TRACK_LENGTH === circles.length) index++;
       time -= 1;
       timeHolder.innerHTML = `Time Left : ${time}`;
     }
   }, 1000);
-}
-const createCircles = ()=> {
-  for (let i = 0; i < time ; i++) {
+};
+const createCircles = () => {
+  for (let i = 0; i < TIME; i++) {
     const randomX = Math.floor(Math.random() * innerWidth);
     const randomY = Math.floor(Math.random() * innerHeight);
     const randomSpeedX = difficulty[difficultyChosen.value].speedX;
@@ -165,13 +206,11 @@ const createCircles = ()=> {
       new Circle(randomX, randomY, 50, randomSpeedX, randomSpeedY, randomColor)
     );
   }
-}
-
-
+};
 
 const animate = () => {
   const context = canvas.getContext("2d");
-  if (circles.length != 0  && time>0) {
+  if (circles.length != 0 && time > 0) {
     requestAnimationFrame(animate);
     context.clearRect(0, 0, window.innerWidth, window.innerHeight);
     circles[index].update();
@@ -181,22 +220,33 @@ const animate = () => {
 };
 
 const init = () => {
-  createCircles(); 
+  createCircles();
   gui();
   handleRezier();
-  setTime(); 
+  setTime();
   animate();
 };
-const start_menu = document.querySelector('.start_menu')
 
-start_menu.width=innerWidth;
-start_menu.height=innerHeight
 
-const togglePlay  =document.querySelector('#togglePlay')
-togglePlay.addEventListener("click",()=> {
-  init()
-  start_menu.style.cssText='display:none'
-})
-// window.addEventListener("load", () => {
-//   init();
-// });
+start_menu.width = innerWidth;
+start_menu.height = innerHeight;
+
+const togglePlay = document.querySelector("#togglePlay");
+togglePlay.addEventListener("click", () => {
+  time = TIME;
+  points.initPoints()
+  init();
+  start_menu.style.cssText = "display:none";
+});
+
+
+
+window.addEventListener("load", () => {
+  //localStorage.clear()
+  
+  cal_avg()
+});
+
+/**
+ * [{game_id:number, points:number , difficulty : string }]
+ */
