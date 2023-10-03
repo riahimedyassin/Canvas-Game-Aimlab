@@ -1,9 +1,7 @@
 "use strict";
 const start_menu = document.querySelector(".start_menu");
-const average_score = document.querySelector('#average--score')
-
-
-
+const average_score = document.querySelector("#average--score");
+const sound_effect = document.querySelector("audio");
 
 let mouse = {
   x: undefined,
@@ -39,10 +37,11 @@ class Points {
     return this.points;
   }
   setPoints(increment) {
+    sound_effect.play();
     this.points += increment;
   }
   initPoints() {
-    this.points=0
+    this.points = 0;
   }
 }
 const gui = () => {
@@ -91,9 +90,9 @@ class LocalStorageManager {
     this.init();
     return [];
   }
-  setScore(score, diff,total) {
+  setScore(score, diff, total) {
     let saved = this.getLocalStorage();
-    const final = { score : score, diff, game_id: saved.length + 1 , total };
+    const final = { score: score, diff, game_id: saved.length + 1, total };
     saved.push(final);
     localStorage.setItem("track-points", JSON.stringify(saved));
   }
@@ -158,25 +157,26 @@ let timeHolder = document.querySelector("#time");
 let index = 0;
 timeHolder.innerHTML = `Time Left : ${time}`;
 
-const points_tracker = new LocalStorageManager()
-const cal_avg=() => {
-    const local = points_tracker.getLocalStorage()
-    console.log(local.length)
-    let totalPoints = 0
-    if(local.length!=0) {
-      local.map((game)=> {
-        console.log(game)
-        totalPoints+=(game.score / game.total)
-      })
-      average_score.innerHTML=`Your avergae accuracy is ${Math.ceil((totalPoints / local.length)*100)}%`
-    }
-    else {
-      average_score.innerHTML="Play games to calculate your averge score"
-    }
-}
+const points_tracker = new LocalStorageManager();
+const cal_avg = () => {
+  const local = points_tracker.getLocalStorage();
+  console.log(local.length);
+  let totalPoints = 0;
+  if (local.length != 0) {
+    local.map((game) => {
+      console.log(game);
+      totalPoints += game.score / game.total;
+    });
+    average_score.innerHTML = `Your avergae accuracy is ${Math.ceil(
+      (totalPoints / local.length) * 100
+    )}%`;
+  } else {
+    average_score.innerHTML = "Play games to calculate your averge score";
+  }
+};
 
 const setTime = () => {
-  const TOTAL_CIRCLES = circles.length
+  const TOTAL_CIRCLES = circles.length;
   let TRACK_LENGTH = circles.length;
   console.log(TRACK_LENGTH);
   let interval = setInterval(() => {
@@ -184,9 +184,13 @@ const setTime = () => {
     if (time < 1) {
       clearInterval(interval);
       circles = [];
-      points_tracker.setScore(points.getPoints(),difficultyChosen.value,TOTAL_CIRCLES);
+      points_tracker.setScore(
+        points.getPoints(),
+        difficultyChosen.value,
+        TOTAL_CIRCLES
+      );
       start_menu.style.cssText = "display:flex";
-      cal_avg()
+      cal_avg();
     } else {
       if (TRACK_LENGTH === circles.length) index++;
       time -= 1;
@@ -227,26 +231,17 @@ const init = () => {
   animate();
 };
 
-
 start_menu.width = innerWidth;
 start_menu.height = innerHeight;
 
 const togglePlay = document.querySelector("#togglePlay");
 togglePlay.addEventListener("click", () => {
   time = TIME;
-  points.initPoints()
+  points.initPoints();
   init();
   start_menu.style.cssText = "display:none";
 });
 
-
-
 window.addEventListener("load", () => {
-  //localStorage.clear()
-  
-  cal_avg()
+  cal_avg();
 });
-
-/**
- * [{game_id:number, points:number , difficulty : string }]
- */
