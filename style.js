@@ -2,7 +2,7 @@
 let mouse = {
   x: undefined,
   y: undefined,
-  radius: 200,
+  radius: 50,
 };
 const difficulty = {
   easy : {
@@ -95,6 +95,7 @@ class Circle {
       this.x <= mouse.x + mouse.radius &&
       this.y >= mouse.y - mouse.radius &&
       this.y <= mouse.y + mouse.radius
+      && this.radius<this.RADIUS+10
     ) {
       this.radius++;
     } else {
@@ -127,7 +128,7 @@ class Circle {
 }
 
 let circles = [];
-let time = 5;
+let time = 20;
 let difficultyChosen = document.querySelector('#difficulity'); 
 const TIME = 5 ; 
 
@@ -139,20 +140,21 @@ timeHolder.innerHTML = `Time Left : ${time}`;
 
 const setTime=()=> {
   let TRACK_LENGTH= circles.length
+  console.log(TRACK_LENGTH)
   let interval = setInterval(() => {
+    console.log(circles)
     if (time < 1) {
       clearInterval(interval);
       circles = [];
     } else {
       if(TRACK_LENGTH===circles.length) index++;
-      console.log(circles[index])
       time -= 1;
       timeHolder.innerHTML = `Time Left : ${time}`;
     }
   }, 1000);
 }
 const createCircles = ()=> {
-  for (let i = 0; i < time+1 ; i++) {
+  for (let i = 0; i < time ; i++) {
     const randomX = Math.floor(Math.random() * innerWidth);
     const randomY = Math.floor(Math.random() * innerHeight);
     const randomSpeedX = difficulty[difficultyChosen.value].speedX;
@@ -169,7 +171,7 @@ const createCircles = ()=> {
 
 const animate = () => {
   const context = canvas.getContext("2d");
-  if (circles.length != 0 && points.getPoints() != circles.length && time>0) {
+  if (circles.length != 0  && time>0) {
     requestAnimationFrame(animate);
     context.clearRect(0, 0, window.innerWidth, window.innerHeight);
     circles[index].update();
