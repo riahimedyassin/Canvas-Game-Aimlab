@@ -1,132 +1,210 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap");
 
 :root {
-    --mainBlue : #007FFF;
-    --secondBlue : #0000FF ;
+  --mainBlue: #007fff;
+  --secondBlue: #0000ff;
 }
 
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    overflow: hidden;
-    font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  font-family: "Poppins", sans-serif;
 }
 
 canvas {
-    background-image: url(./src/chain_effect.png);
+  background-image: url(./src/chain_effect.png);
 }
 .gui {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translate(-50%,0);
-    width: 600px;
-    height: 100px;
-    background-color: var(--secondBlue);
-    color: white;
-    z-index: 10;
-    border-radius: 0 0 32px 32px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    font-size: xx-large;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: 600px;
+  height: 100px;
+  background-color: var(--secondBlue);
+  color: white;
+  z-index: 10;
+  border-radius: 0 0 32px 32px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: xx-large;
 }
 .alert {
-    display: none;
-    z-index: 10;
-    color: red;
-    font-size: large;
-    font-weight: bold;
-    position: absolute;
-    top: 100px;
-    left: 50%;
-    transform: translate(-50%,0);
+  display: none;
+  z-index: 10;
+  color: red;
+  font-size: large;
+  font-weight: bold;
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translate(-50%, 0);
 }
 .start_menu {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-image: linear-gradient(20deg,var(--mainBlue),var(--secondBlue));
-    z-index: 20;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(20deg, var(--mainBlue), var(--secondBlue));
+  z-index: 20;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 .start_menu button {
-    width: 400px;
-    height: 80px;
-    font-size: xx-large;
-    font-weight: bold;
-    border-radius: 16px;
-    border: 2px solid white;
-    background-color: transparent;
-    color: white;
-    transition: 0.2s ease-in-out;
-    cursor: pointer;
-    margin: 32px;
+  width: 400px;
+  height: 80px;
+  font-size: xx-large;
+  font-weight: bold;
+  border-radius: 16px;
+  border: 2px solid white;
+  background-color: transparent;
+  color: white;
+  transition: 0.2s ease-in-out;
+  cursor: pointer;
+  margin: 32px;
 }
 .start_menu button:hover {
-    color: var(--secondBlue);
-    background-color: white;
-  
+  color: var(--secondBlue);
+  background-color: white;
 }
 .start_menu #difficulity {
-    width: 400px;
-    height: 60px;
-    font-size: x-large;
-    font-weight: bold;
-    border-radius: 16px;
+  width: 400px;
+  height: 60px;
+  font-size: x-large;
+  font-weight: bold;
+  border-radius: 16px;
+  border: 2px solid white;
+  background-color: transparent;
+  color: white;
+  cursor: pointer;
+}
+#difficulity option {
+  color: black;
+}
+h1 {
+  font-size: 4rem;
+}
+p {
+  font-size: x-large;
+  opacity: 0.6;
+}
+.start_menu .effect {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.5;
+  z-index: -1;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.social--media {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.social--media img {
+  margin-left: 16px;
+}
+#average--score {
+  margin-top: 32px;
+  font-size: 1.5rem;
+}
+h2 a {
+  color: white;
+}
+.toggleHistory {
+  height: 40px;
+  opacity: 0.5;
+}
+.toggleHistory:hover {
+  opacity: 1;
+}
+#history {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(20deg, var(--mainBlue), var(--secondBlue));
+  z-index: 20;
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+#history h1 {
+    margin-bottom: 32px;
+}
+.target_history {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+.target_history div {
     border: 2px solid white;
+    color: white;
+    border-radius: 16px;
+    width: 800px;
+    height: 90px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: x-large;
+    opacity: 0.6;
+    transition: 0.2s ease-in-out;
+}
+.target_history div:hover , .target_history div:hover p  {
+    opacity: 1;
+}
+#toggle_home {
+    width: 400px;
+    height: 80px;
+    border: 2px solid white;
+    border-radius: 16px;
     background-color: transparent;
     color: white;
     cursor: pointer;
-}
-#difficulity option {
-    color: black;
-}
-h1 {
-    font-size:4rem ;
-}
-p {
     font-size: x-large;
-    opacity: 0.6;
+    margin-top: 36px;
+    transition: 0.2s ease-in-out;
 }
-.start_menu .effect {
-    width: 100%;
-    height: 100%;
+#toggle_home:hover {
+    background-color: white;
+    color: var(--secondBlue);
+}
+.average {
+    width: 600px;
+    height: 100px;
+    position: relative;
+    margin: 32px;
+    text-align: center;
+
+}
+.averg-bar {
     position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0.5;
-    z-index: -1;
-}
-.footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    top: 50px;
+    left: 50%;
+    background-color: #007fff;
+    height: 50px;
+    border-radius: 16px;
     display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-.social--media {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-.social--media img {
-    margin-left: 16px;
-}
-#average--score {
-    margin-top: 32px;
-    font-size: 1.5rem;
-}
-h2 a {
-    color: white;
-    
+    justify-content: center;
+    font-size: x-large;
+    transform: translate(-50%,0);
 }

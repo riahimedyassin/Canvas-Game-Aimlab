@@ -12,11 +12,13 @@
       <h1>Aimlab</h1>
       <p>Train Your Aim Like a Pro</p>
       <button id="togglePlay">Play Now !</button>
+      
       <select name="" id="difficulity">
         <option value="easy" selected>Easy</option>
         <option value="normal">Normal</option>
         <option value="hard">Hard</option>
       </select>
+      <button  class="toggleHistory" id="btn_toggle_history">Checkout History</button>
       <div id="average--score">
         
       </div>
@@ -33,8 +35,21 @@
         </div>
       </div>
     </div>
-    <audio src="./src/sound_effect.mp3">
+    <div id="history">
+      <h1>Your Recent Games</h1>
+      <div class="average">
+        <h2>You averge accuracy is : </h2>
+        <div class="averg-bar">
 
+        </div>
+      </div>
+      <div class="target_history">
+
+      </div>
+      <button id="toggle_home" >Go Back</button>
+    </div>
+
+    <audio src="./src/sound_effect.mp3">
     </audio>
     <div class="gui">
       <div id="points"></div>

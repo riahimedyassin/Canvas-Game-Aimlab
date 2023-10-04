@@ -3,6 +3,14 @@ const start_menu = document.querySelector(".start_menu");
 const average_score = document.querySelector("#average--score");
 const sound_effect = document.querySelector("audio");
 const alert = document.querySelector(".alert");
+const history = document.querySelector("#history");
+const toggleHistory = document.querySelector("#btn_toggle_history");
+const backToHome = document.querySelector('#toggle_home')
+
+
+
+
+
 
 let mouse = {
   x: undefined,
@@ -82,7 +90,7 @@ window.addEventListener("click", (event) => {
     ) {
       return circle;
     } else {
-      alertHit()
+      alertHit();
       points.setPoints(1);
       gui();
     }
@@ -166,15 +174,22 @@ let index = 0;
 timeHolder.innerHTML = `Time Left : ${time}`;
 
 const points_tracker = new LocalStorageManager();
-const cal_avg = () => {
+
+const value_avg=()=> {
   const local = points_tracker.getLocalStorage();
-  console.log(local.length);
   let totalPoints = 0;
   if (local.length != 0) {
     local.map((game) => {
-      console.log(game);
       totalPoints += game.score / game.total;
     });
+  }
+  return totalPoints
+}
+
+const cal_avg = () => {
+  const local = points_tracker.getLocalStorage();
+  let totalPoints = value_avg();
+  if (totalPoints!=0) {
     average_score.innerHTML = `Your avergae accuracy is ${Math.ceil(
       (totalPoints / local.length) * 100
     )}%`;
@@ -182,6 +197,41 @@ const cal_avg = () => {
     average_score.innerHTML = "Play games to calculate your averge score";
   }
 };
+const displayHistory=()=> {
+  const local= points_tracker.getLocalStorage(); 
+  const target= document.querySelector('.target_history'); 
+  const avg_bar = document.querySelector('.averg-bar')
+  if(local.length!=0) {
+    target.innerHTML=''
+    avg_bar.style.cssText=`width:${(value_avg() / local.length) * 100}%`
+    avg_bar.innerHTML=`${Math.ceil((value_avg() / local.length) * 100)} %`
+     local.map(game=> {
+        const div = document.createElement("div")
+        div.classList.add('recent--game');
+        div.innerHTML=`<p>Difficulty : ${game.diff}</p> <p> Points : ${game.score} </p> <p>Accuracy : ${(game.score / game.total)*100}%`
+        target.appendChild(div)
+     })
+  }
+  else {
+    target.innerHTML="<h2> No matches has been found </h1>"
+  }
+}
+
+
+
+
+toggleHistory.addEventListener("click", () => {
+  start_menu.style.cssText = "display:none";
+  history.style.cssText = "display:flex";
+  displayHistory();
+});
+backToHome.addEventListener('click',()=> {
+  start_menu.style.cssText = "display:flex";
+  history.style.cssText = "display:none";
+})
+
+
+
 
 const setTime = () => {
   const TOTAL_CIRCLES = circles.length;
