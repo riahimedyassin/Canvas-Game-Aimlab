@@ -150,11 +150,19 @@ h2 a {
     margin-bottom: 32px;
 }
 .target_history {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     gap: 16px;
+    max-height: 600px;
+    overflow-y: scroll;
+}
+.target_history::-webkit-scrollbar {
+  width: 10px;
+  margin-left: 10px;
+}
+.target_history::-webkit-scrollbar-track {
+  background-color: white;
+}
+.target_history::-webkit-scrollbar-thumb {
+  background-color: var(--mainBlue);
 }
 .target_history div {
     border: 2px solid white;
@@ -168,10 +176,12 @@ h2 a {
     font-size: x-large;
     opacity: 0.6;
     transition: 0.2s ease-in-out;
+    margin-top: 16px;
 }
 .target_history div:hover , .target_history div:hover p  {
     opacity: 1;
 }
+
 #toggle_home {
     width: 400px;
     height: 80px;
@@ -200,7 +210,7 @@ h2 a {
     position: absolute;
     top: 50px;
     left: 50%;
-    background-color: #007fff;
+    background-image: linear-gradient(20deg , #E9B824 , #EE9322  , #D83F31 );
     height: 50px;
     border-radius: 16px;
     display: flex;

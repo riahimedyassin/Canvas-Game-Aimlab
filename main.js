@@ -1,4 +1,13 @@
 "use strict";
+/*NOTE : Pour que la joue fonctionnera parfaitement , le temp doit etre un multipe de 2 , puisque chaque cercle 
+spawn pour 2seconde , et si on veut affichier tous les cercles avant que le temp s'eccoule , cette condition doit etre satisfaite
+J'ai crée une fonction pour arrondi toujours le temp à un temp % 2 == 0 && typeof(temp) == (int)number 
+(Si jamais vous remarquez que le temp saisie n'est pas toujours le temp affichier ) */
+
+const round_time = (time) => {
+  return Math.floor(time % 2 === 0 ? time : Math.floor(time + 1)) ; 
+};
+
 const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
 const start_menu = document.querySelector(".start_menu");
@@ -16,17 +25,20 @@ const target = document.querySelector(".target_history");
 const avg_bar = document.querySelector(".averg-bar");
 const togglePlay = document.querySelector("#togglePlay");
 let index = 0; // Track du cercle courante
-let circles = [];
-const circleColors = ["#6CB4EE", "#0000FF", "#3457D5", "#2a52be", "#6F00FF"];
-let time = 5; // On peut modifier le temp du jeu et donc le nombre de cercle d'après ce variable
-const TIME = 5;
-let SOUND_STATE = true;
+let circles = []; // Tableau des cercles crées
+const circleColors = ["#6CB4EE", "#0000FF", "#3457D5", "#2a52be", "#6F00FF"]; // Tableau de couleur possible des cercles
+let time = round_time(5); // On peut modifier le temp du jeu et donc le nombre de cercle d'après ce variable
+const TIME = round_time(5); // Utiliser pour initialiser le temp chaque fois on rejoue
+let SOUND_STATE = true; // L'état du song
 let PAUSED = false; // Pause le jeu
+
+//mouse : Sa definie une cercle virtuelle de souris d'ou on va l'utiliser pour l'effet de hover sur une cercle
 let mouse = {
   x: undefined,
   y: undefined,
   radius: 50,
 };
+//Definie la difficulté du jeu et donc les vitesses de mouvement des cercle
 const difficulty = {
   easy: {
     speedX: 0,
@@ -41,11 +53,13 @@ const difficulty = {
     speedY: Math.floor(Math.random() - 0.5 * 10),
   },
 };
+//Puisque le CSS ne vient point de prendre le largeur et l'auteur totalle (reelle ) de fenetre , on l'initialise depuis le JS.
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 start_menu.width = window.innerWidth;
 start_menu.height = window.innerHeight;
 
+//Si le taille de fentre change, on change les largeur et l'auteur de menu et de canvas
 const handleRezier = () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -97,6 +111,7 @@ class Circle {
     this.speedX = speedX;
     this.speedY = speedY;
     this.color = color;
+    //On utilsera cette constante pour resize la cercle si on ne le hovre pas par la souris
     this.RADIUS = radius;
   }
   draw() {
@@ -112,16 +127,14 @@ class Circle {
     } else {
       if (this.radius != this.RADIUS) this.radius--;
     }
-
     context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-
     context.strokeStyle = "black";
     context.fillStyle = this.color;
     context.fill();
-
     context.stroke();
   }
   update() {
+    //Analyse de mouvement d'objet et decision de prochain mouvement selon sa position actuelle (Creation d'une bordure virtuelle)
     if (this.x - this.radius < innerWidth && this.x - this.radius > 0) {
       this.x = this.x + this.speedX;
     } else {
@@ -182,11 +195,11 @@ const displayHistory = () => {
     const avg = value_avg();
     avg_bar.style.cssText = `width:${avg}%`;
     avg_bar.innerHTML = `${Math.ceil(avg)} %`;
-    local.map((game) => {
+    local.reverse().map((game) => {
       const div = document.createElement("div");
       div.innerHTML = `<p>Difficulty : ${game.diff}</p> <p> Points : ${
         game.score
-      } </p> <p>Accuracy : ${(game.score / game.total) * 100}%`;
+      } </p> <p>Accuracy : ${Math.round((game.score / game.total) * 100)}%`;
       target.appendChild(div);
     });
   } else {
@@ -204,9 +217,8 @@ const handleHistory = (to_display, to_hide, callback) => {
 
 const getInterval = () => {
   const TOTAL_CIRCLES = circles.length;
-  const TRACK_LENGTH = circles.length;
   let interval = setInterval(() => {
-    if (time < 1) {
+    if (time < 1 || circles.length === 0) {
       clearInterval(interval);
       points_tracker.setScore(
         points.getPoints(),
@@ -216,10 +228,10 @@ const getInterval = () => {
       start_menu.style.cssText = "display:flex";
       cal_avg();
     } else {
-      if (TRACK_LENGTH === circles.length) index++;
-      else {
-        if (circleColors[index + 1] == undefined && circleColors.length != 0)
-          index--;
+      if (circleColors.length != 0 && circles[index] == undefined) {
+        while (circles[index] == undefined) index--;
+      } else {
+        index++;
       }
       time -= 1;
       timeHolder.innerHTML = `Time Left : ${time}`;
