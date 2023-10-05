@@ -208,3 +208,10 @@ h2 a {
     font-size: x-large;
     transform: translate(-50%,0);
 }
+#pause , #sound-off {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  border-radius: 8px;
+  cursor: pointer;
+}

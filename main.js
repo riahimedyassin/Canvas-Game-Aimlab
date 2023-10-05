@@ -5,8 +5,13 @@ const sound_effect = document.querySelector("audio");
 const alert = document.querySelector(".alert");
 const history = document.querySelector("#history");
 const toggleHistory = document.querySelector("#btn_toggle_history");
-const backToHome = document.querySelector('#toggle_home')
+const backToHome = document.querySelector('#toggle_home');
+const sound_controller = document.querySelector('#sound-off')
 
+let SOUND_STATE = true ; 
+sound_controller.addEventListener('click',()=> {
+  SOUND_STATE=!SOUND_STATE
+})
 
 
 
@@ -46,7 +51,7 @@ class Points {
     return this.points;
   }
   setPoints(increment) {
-    sound_effect.play();
+    if(SOUND_STATE) sound_effect.play();
     this.points += increment;
   }
   initPoints() {
@@ -230,14 +235,12 @@ backToHome.addEventListener('click',()=> {
   history.style.cssText = "display:none";
 })
 
+const pause = document.querySelector('#pause')
 
-
-
-const setTime = () => {
+const getInterval=()=> {
   const TOTAL_CIRCLES = circles.length;
   let TRACK_LENGTH = circles.length;
-  console.log(TRACK_LENGTH);
-  let interval = setInterval(() => {
+  let interval =  setInterval(() => {
     console.log(circles);
     if (time < 1) {
       clearInterval(interval);
@@ -255,6 +258,19 @@ const setTime = () => {
       timeHolder.innerHTML = `Time Left : ${time}`;
     }
   }, 1000);
+  return interval
+}
+let PAUSED= false ; 
+pause.addEventListener('click',()=> {
+  PAUSED=!PAUSED
+})
+
+
+const setTime = () => {
+  let interval = getInterval();
+  pause.addEventListener('click',()=> {
+    PAUSED ? clearInterval(interval) : getInterval()
+  })
 };
 const createCircles = () => {
   for (let i = 0; i < TIME; i++) {
