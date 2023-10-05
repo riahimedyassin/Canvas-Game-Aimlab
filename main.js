@@ -1,22 +1,27 @@
 "use strict";
+const canvas = document.querySelector("canvas");
+const context = canvas.getContext("2d");
 const start_menu = document.querySelector(".start_menu");
 const average_score = document.querySelector("#average--score");
 const sound_effect = document.querySelector("audio");
 const alert = document.querySelector(".alert");
 const history = document.querySelector("#history");
 const toggleHistory = document.querySelector("#btn_toggle_history");
-const backToHome = document.querySelector('#toggle_home');
-const sound_controller = document.querySelector('#sound-off')
-
-let SOUND_STATE = true ; 
-sound_controller.addEventListener('click',()=> {
-  SOUND_STATE=!SOUND_STATE
-})
-
-
-
-
-
+const backToHome = document.querySelector("#toggle_home");
+const sound_controller = document.querySelector("#sound-off");
+const pause = document.querySelector("#pause");
+let difficultyChosen = document.querySelector("#difficulity");
+let timeHolder = document.querySelector("#time");
+const target = document.querySelector(".target_history");
+const avg_bar = document.querySelector(".averg-bar");
+const togglePlay = document.querySelector("#togglePlay");
+let index = 0; // Track du cercle courante
+let circles = [];
+const circleColors = ["#6CB4EE", "#0000FF", "#3457D5", "#2a52be", "#6F00FF"];
+let time = 5; // On peut modifier le temp du jeu et donc le nombre de cercle d'après ce variable
+const TIME = 5;
+let SOUND_STATE = true;
+let PAUSED = false; // Pause le jeu
 let mouse = {
   x: undefined,
   y: undefined,
@@ -36,14 +41,21 @@ const difficulty = {
     speedY: Math.floor(Math.random() - 0.5 * 10),
   },
 };
-
-const canvas = document.querySelector("canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+start_menu.width = window.innerWidth;
+start_menu.height = window.innerHeight;
 
-const circleColors = ["#6CB4EE", "#0000FF", "#3457D5", "#2a52be", "#6F00FF"];
+const handleRezier = () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  start_menu.width = window.innerWidth;
+  start_menu.height = window.innerHeight;
+};
 
-//System de point
+timeHolder.innerHTML = `Time Left : ${time}`;
+
+//Classes Section : START
 class Points {
   points = 0;
   constructor() {}
@@ -51,56 +63,14 @@ class Points {
     return this.points;
   }
   setPoints(increment) {
-    if(SOUND_STATE) sound_effect.play();
     this.points += increment;
   }
   initPoints() {
     this.points = 0;
   }
 }
-const gui = () => {
-  const pointsHolder = document.querySelector("#points");
-  pointsHolder.innerHTML = `Current Score : ${points.getPoints()}`;
-};
-
-const handleRezier = () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-};
-
 const points = new Points();
-window.addEventListener("mousemove", (event) => {
-  mouse.x = event.x;
-  mouse.y = event.y;
-});
-window.addEventListener("resize", () => {
-  handleRezier();
-});
-const alertHit = () => {
-  setInterval(() => {
-    alert.style.cssText = "display:block";
-  }, 500);
-  alert.style.cssText = "display:none";
-};
 
-window.addEventListener("click", (event) => {
-  circles = circles.filter((circle) => {
-    if (
-      !(
-        circle.x + circle.radius >= mouse.x &&
-        circle.x - circle.radius <= mouse.x &&
-        circle.y + circle.radius >= mouse.y &&
-        circle.y - circle.radius <= mouse.y + mouse.radius
-      )
-    ) {
-      return circle;
-    } else {
-      alertHit();
-      points.setPoints(1);
-      gui();
-    }
-  });
-});
 class LocalStorageManager {
   init() {
     localStorage.setItem("track-points", []);
@@ -130,7 +100,6 @@ class Circle {
     this.RADIUS = radius;
   }
   draw() {
-    const context = canvas.getContext("2d");
     context.beginPath();
     if (
       this.x >= mouse.x - mouse.radius &&
@@ -168,83 +137,77 @@ class Circle {
     this.draw();
   }
 }
-
-let circles = [];
-let time = 5;
-let difficultyChosen = document.querySelector("#difficulity");
-const TIME = 5;
-
-let timeHolder = document.querySelector("#time");
-let index = 0;
-timeHolder.innerHTML = `Time Left : ${time}`;
-
 const points_tracker = new LocalStorageManager();
+//Classes Section : END
 
-const value_avg=()=> {
+const gui = () => {
+  const pointsHolder = document.querySelector("#points");
+  pointsHolder.innerHTML = `Current Score : ${points.getPoints()}`;
+};
+const alertHit = () => {
+  if (SOUND_STATE) sound_effect.play();
+  setInterval(() => {
+    alert.style.cssText = "display:block";
+  }, 500);
+  alert.style.cssText = "display:none";
+};
+
+const value_avg = () => {
   const local = points_tracker.getLocalStorage();
-  let totalPoints = 0;
+  let totalAverage = 0;
   if (local.length != 0) {
     local.map((game) => {
-      totalPoints += game.score / game.total;
+      totalAverage += game.score / game.total;
     });
+    return (totalAverage / local.length) * 100;
   }
-  return totalPoints
-}
+  return 0;
+};
 
 const cal_avg = () => {
-  const local = points_tracker.getLocalStorage();
-  let totalPoints = value_avg();
-  if (totalPoints!=0) {
+  const totalAverage = value_avg();
+  if (totalAverage != 0) {
     average_score.innerHTML = `Your avergae accuracy is ${Math.ceil(
-      (totalPoints / local.length) * 100
+      totalAverage
     )}%`;
   } else {
     average_score.innerHTML = "Play games to calculate your averge score";
   }
 };
-const displayHistory=()=> {
-  const local= points_tracker.getLocalStorage(); 
-  const target= document.querySelector('.target_history'); 
-  const avg_bar = document.querySelector('.averg-bar')
-  if(local.length!=0) {
-    target.innerHTML=''
-    avg_bar.style.cssText=`width:${(value_avg() / local.length) * 100}%`
-    avg_bar.innerHTML=`${Math.ceil((value_avg() / local.length) * 100)} %`
-     local.map(game=> {
-        const div = document.createElement("div")
-        div.classList.add('recent--game');
-        div.innerHTML=`<p>Difficulty : ${game.diff}</p> <p> Points : ${game.score} </p> <p>Accuracy : ${(game.score / game.total)*100}%`
-        target.appendChild(div)
-     })
+
+const displayHistory = () => {
+  const local = points_tracker.getLocalStorage();
+  target.innerHTML = "";
+  if (local.length != 0) {
+    const avg = value_avg();
+    avg_bar.style.cssText = `width:${avg}%`;
+    avg_bar.innerHTML = `${Math.ceil(avg)} %`;
+    local.map((game) => {
+      const div = document.createElement("div");
+      div.innerHTML = `<p>Difficulty : ${game.diff}</p> <p> Points : ${
+        game.score
+      } </p> <p>Accuracy : ${(game.score / game.total) * 100}%`;
+      target.appendChild(div);
+    });
+  } else {
+    target.innerHTML = "<h2> No matches has been found </h1>";
   }
-  else {
-    target.innerHTML="<h2> No matches has been found </h1>"
+};
+
+const handleHistory = (to_display, to_hide, callback) => {
+  to_hide.style.cssText = "display:none";
+  to_display.style.cssText = "display:flex";
+  if (callback) {
+    callback();
   }
-}
+};
 
-
-
-
-toggleHistory.addEventListener("click", () => {
-  start_menu.style.cssText = "display:none";
-  history.style.cssText = "display:flex";
-  displayHistory();
-});
-backToHome.addEventListener('click',()=> {
-  start_menu.style.cssText = "display:flex";
-  history.style.cssText = "display:none";
-})
-
-const pause = document.querySelector('#pause')
-
-const getInterval=()=> {
+const getInterval = () => {
   const TOTAL_CIRCLES = circles.length;
-  let TRACK_LENGTH = circles.length;
-  let interval =  setInterval(() => {
-    console.log(circles);
+  const TRACK_LENGTH = circles.length;
+  let interval = setInterval(() => {
     if (time < 1) {
       clearInterval(interval);
-      circles = [];
       points_tracker.setScore(
         points.getPoints(),
         difficultyChosen.value,
@@ -254,23 +217,22 @@ const getInterval=()=> {
       cal_avg();
     } else {
       if (TRACK_LENGTH === circles.length) index++;
+      else {
+        if (circleColors[index + 1] == undefined && circleColors.length != 0)
+          index--;
+      }
       time -= 1;
       timeHolder.innerHTML = `Time Left : ${time}`;
     }
   }, 1000);
-  return interval
-}
-let PAUSED= false ; 
-pause.addEventListener('click',()=> {
-  PAUSED=!PAUSED
-})
-
+  return interval;
+};
 
 const setTime = () => {
   let interval = getInterval();
-  pause.addEventListener('click',()=> {
-    PAUSED ? clearInterval(interval) : getInterval()
-  })
+  pause.addEventListener("click", () => {
+    PAUSED ? clearInterval(interval) : getInterval();
+  });
 };
 const createCircles = () => {
   for (let i = 0; i < TIME; i++) {
@@ -295,17 +257,17 @@ const createCircles = () => {
 };
 
 const animate = () => {
-  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, window.innerWidth, window.innerHeight);
   if (circles.length != 0 && time > 0) {
     requestAnimationFrame(animate);
-    context.clearRect(0, 0, window.innerWidth, window.innerHeight);
     circles[index].update();
-  } else {
-    context.clearRect(0, 0, window.innerWidth, window.innerHeight);
   }
 };
 
 const init = () => {
+  index = 0;
+  time = TIME;
+  circles = [];
   createCircles();
   gui();
   handleRezier();
@@ -313,12 +275,44 @@ const init = () => {
   animate();
 };
 
-start_menu.width = innerWidth;
-start_menu.height = innerHeight;
+//EVENT LISTENNERS :
+sound_controller.addEventListener("click", () => {
+  SOUND_STATE = !SOUND_STATE;
+});
+window.addEventListener("resize", () => {
+  handleRezier();
+});
+window.addEventListener("click", (event) => {
+  mouse.x = event.x;
+  mouse.y = event.y;
+  circles = circles.filter((circle) => {
+    if (
+      !(
+        circle.x + circle.radius >= mouse.x &&
+        circle.x - circle.radius <= mouse.x &&
+        circle.y + circle.radius >= mouse.y &&
+        circle.y - circle.radius <= mouse.y + mouse.radius
+      )
+    ) {
+      return circle;
+    } else {
+      alertHit();
+      points.setPoints(1);
+      gui();
+    }
+  });
+});
 
-const togglePlay = document.querySelector("#togglePlay");
+toggleHistory.addEventListener("click", () => {
+  handleHistory(history, start_menu, displayHistory);
+});
+backToHome.addEventListener("click", () => {
+  handleHistory(start_menu, history);
+});
+pause.addEventListener("click", () => {
+  PAUSED = !PAUSED;
+});
 togglePlay.addEventListener("click", () => {
-  time = TIME;
   points.initPoints();
   init();
   start_menu.style.cssText = "display:none";
