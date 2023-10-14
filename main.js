@@ -1,11 +1,13 @@
 "use strict";
-/*NOTE : Pour que la joue fonctionnera parfaitement , le temp doit etre un multipe de 2 , puisque chaque cercle 
-spawn pour 2seconde , et si on veut affichier tous les cercles avant que le temp s'eccoule , cette condition doit etre satisfaite
+/*NOTE : Pour que le joue fonctionnera parfaitement , le temp doit etre un multipe de 2 , puisque chaque cercle 
+spawn pour 2seconde , et si on veut affichier tous les cercles avant que le temp s'eccoule 
+(On suppose que le joeur ne touchera jamis une cercle sinon le temp sera bien sure moins beaucoup important , 
+puisque le nombre de cercle depend de temp (Voir la fonction createCercles)) , cette condition doit etre satisfaite
 J'ai crée une fonction pour arrondi toujours le temp à un temp % 2 == 0 && typeof(temp) == (int)number 
 (Si jamais vous remarquez que le temp saisie n'est pas toujours le temp affichier ) */
 
 const round_time = (time) => {
-  return Math.floor(time % 2 === 0 ? time : Math.floor(time + 1)) ; 
+  return Math.floor(time % 2 === 0 ? time : Math.floor(time + 1));
 };
 
 const canvas = document.querySelector("canvas");
@@ -20,6 +22,7 @@ const backToHome = document.querySelector("#toggle_home");
 const sound_controller = document.querySelector("#sound-off");
 const pause = document.querySelector("#pause");
 let difficultyChosen = document.querySelector("#difficulity");
+const pointsHolder = document.querySelector("#points");
 let timeHolder = document.querySelector("#time");
 const target = document.querySelector(".target_history");
 const avg_bar = document.querySelector(".averg-bar");
@@ -31,6 +34,9 @@ let time = round_time(5); // On peut modifier le temp du jeu et donc le nombre d
 const TIME = round_time(5); // Utiliser pour initialiser le temp chaque fois on rejoue
 let SOUND_STATE = true; // L'état du song
 let PAUSED = false; // Pause le jeu
+const pauseContainer = document.querySelector(".pause-container") // Utiliser pour masquer la page de l'utlisateur et ne le parmettre pas d'interagir avec les cercles
+const GLOBAL_TOTAL_CIRCLES = round_time(5) // Nombre TOTAL des cercles generer dans le jeu (On l'utilisera pour le calcul de moyen)
+
 
 //mouse : Sa definie une cercle virtuelle de souris d'ou on va l'utiliser pour l'effet de hover sur une cercle
 let mouse = {
@@ -83,7 +89,6 @@ class Points {
     this.points = 0;
   }
 }
-const points = new Points();
 
 class LocalStorageManager {
   init() {
@@ -150,17 +155,23 @@ class Circle {
     this.draw();
   }
 }
-const points_tracker = new LocalStorageManager();
+
 //Classes Section : END
 
+//Les instances : START
+const points = new Points();
+const points_tracker = new LocalStorageManager();
+//Les instances : END
+
 const gui = () => {
-  const pointsHolder = document.querySelector("#points");
   pointsHolder.innerHTML = `Current Score : ${points.getPoints()}`;
+  timeHolder.innerHTML = `Time Left : ${time}`;
 };
 const alertHit = () => {
   if (SOUND_STATE) sound_effect.play();
-  setInterval(() => {
+  const interval = setInterval(() => {
     alert.style.cssText = "display:block";
+    clearInterval(interval)
   }, 500);
   alert.style.cssText = "display:none";
 };
@@ -216,27 +227,32 @@ const handleHistory = (to_display, to_hide, callback) => {
 };
 
 const getInterval = () => {
-  const TOTAL_CIRCLES = circles.length;
   let interval = setInterval(() => {
     if (time < 1 || circles.length === 0) {
       clearInterval(interval);
       points_tracker.setScore(
         points.getPoints(),
         difficultyChosen.value,
-        TOTAL_CIRCLES
+        GLOBAL_TOTAL_CIRCLES
       );
-      start_menu.style.cssText = "display:flex";
-      cal_avg();
+      start_menu.style.cssText = "display:flex"; // Re-affichier le menu principale
+      cal_avg(); // Calculer le nouveau avg
     } else {
+      //Si on clique sur une cercle elle serra supprimer de tableau cercle , dont le pointeur index doit decider si
+      // on va incrementer sa valeur ou la decrementer. Ce logique est implemeté comme ci dessous :
+      // Un seul probleme , que ce logique va declencher un erreur si on clique  sur une cercle (puisque on demande d'animer)
+      // une cercle undefini) , mais ce probleme est resolu automatiquement lors de prochain cycle de l'interval dont
+      // ce logique de pointage sera implementé et donc on n'aura plus un pointeur sur une case undefini.
       if (circleColors.length != 0 && circles[index] == undefined) {
         while (circles[index] == undefined) index--;
       } else {
         index++;
       }
+      // Le temp decrement independament du l'interval
       time -= 1;
-      timeHolder.innerHTML = `Time Left : ${time}`;
+      gui();
     }
-  }, 1000);
+  }, 2000);
   return interval;
 };
 
@@ -246,6 +262,8 @@ const setTime = () => {
     PAUSED ? clearInterval(interval) : getInterval();
   });
 };
+
+// Creation dynamique des cercles totalement aleatoire
 const createCircles = () => {
   for (let i = 0; i < TIME; i++) {
     const randomX = Math.floor(Math.random() * innerWidth);
@@ -254,7 +272,7 @@ const createCircles = () => {
     const randomSpeedY = difficulty[difficultyChosen.value].speedY;
     const randomColor =
       circleColors[Math.floor(Math.random() * circleColors.length)];
-    const randomRadius = Math.floor(Math.random() * 100);
+    const randomRadius = Math.floor(Math.random() * 100) + 20; // min(radius) == 20
     circles.push(
       new Circle(
         randomX,
@@ -268,11 +286,15 @@ const createCircles = () => {
   }
 };
 
+// Animation principale des cercles
+// Le logique de update des cercles sera seulement implementés ssi le niveau est different de facile (easy) , puisque
+// le calcul implementé dans cette fonction est unnecessaire pour ces cercles statiques en terme de mouvement.
 const animate = () => {
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
   if (circles.length != 0 && time > 0) {
     requestAnimationFrame(animate);
-    circles[index].update();
+    if (!difficultyChosen === "easy") circles[index].draw();
+    else circles[index].update();
   }
 };
 
@@ -323,6 +345,7 @@ backToHome.addEventListener("click", () => {
 });
 pause.addEventListener("click", () => {
   PAUSED = !PAUSED;
+  pauseContainer.style.cssText=PAUSED ? "display:flex" : "display:none"
 });
 togglePlay.addEventListener("click", () => {
   points.initPoints();
