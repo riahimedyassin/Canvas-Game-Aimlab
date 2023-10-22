@@ -354,5 +354,6 @@ togglePlay.addEventListener("click", () => {
 });
 
 window.addEventListener("load", () => {
+  //localstorage.clear()
   cal_avg();
 });
